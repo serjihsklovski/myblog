@@ -16,7 +16,7 @@ class Router
         $controllerFilename = array_shift($segments);
 
         if (self::_isValidControllerFilename($controllerFilename)) {
-            $this->_controllerFilename = ROOT . '/controllers/' . $controllerFilename . '.php';
+            $this->_controllerFilename = ROOT . '/controllers/' . str_replace('-', '_', $controllerFilename) . '.php';
 
             if (!file_exists($this->_controllerFilename)) {
 //                throw new FileNotExistException($this->_controllerFilename);

@@ -10,7 +10,11 @@ class Application
 
     public function __construct(&$config)
     {
-        $this->_config = $config;
+        try {
+            $this->_config = $config;
+        } catch (Exception $e) {
+            $e->getMessage();
+        }
     }
 
 

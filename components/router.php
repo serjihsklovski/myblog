@@ -1,5 +1,9 @@
 <?php
 
+require_once 'exceptions/invalid_controller_filename_exception.php';
+require_once 'exceptions/file_not_exists_exception.php';
+
+
 class Router
 {
     private $_uri;
@@ -16,15 +20,16 @@ class Router
         $controllerFilename = array_shift($segments);
 
         if (self::_isValidControllerFilename($controllerFilename)) {
-            $this->_controllerFilename = ROOT . '/controllers/' . str_replace('-', '_', $controllerFilename) . '.php';
+            $this->_controllerFilename = ROOT . '/controllers/'
+                . str_replace('-', '_', $controllerFilename) . '_controller.php';
 
             if (!file_exists($this->_controllerFilename)) {
-//                throw new FileNotExistException($this->_controllerFilename);
+                throw new FileNotExistsException($this->_controllerFilename);
             }
 
             // next steps of routing
         } else {
-//            throw new InvalidControllerFilenameException();
+            throw new InvalidControllerFilenameException($controllerFilename);
         }
 
         echo $this->_controllerFilename;

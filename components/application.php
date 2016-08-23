@@ -1,6 +1,7 @@
 <?php
 
 require_once ROOT . '/components/router.php';
+require_once ROOT . '/components/exceptions/file_not_exists_exception.php';
 
 class Application
 {
@@ -10,9 +11,13 @@ class Application
 
     public function __construct(&$config)
     {
+        $this->_config = $config;
+        
         try {
-            $this->_config = $config;
-        } catch (Exception $e) {
+            $this->_router = new Router();
+        } catch (InvalidControllerFilenameException $e) {
+            $e->getMessage();
+        } catch (InvalidActionNameException $e) {
             $e->getMessage();
         }
     }
@@ -20,6 +25,6 @@ class Application
 
     public function run()
     {
-        $this->_router = new Router();
+        //
     }
 }

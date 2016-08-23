@@ -1,7 +1,7 @@
 <?php
 
-require_once 'exceptions/invalid_controller_filename_exception.php';
-require_once 'exceptions/file_not_exists_exception.php';
+require_once ROOT . '/components/exceptions/invalid_controller_filename_exception.php';
+require_once ROOT . '/components/exceptions/invalid_action_name_exception.php';
 
 
 class Router
@@ -18,21 +18,22 @@ class Router
         $this->_uri = self::_getUri();
         $segments = explode('/', $this->_uri);
         $controllerFilename = array_shift($segments);
+        $actionName = array_shift($segments);
 
-        if (self::_isValidControllerFilename($controllerFilename)) {
-            $this->_controllerFilename = ROOT . '/controllers/'
-                . str_replace('-', '_', $controllerFilename) . '_controller.php';
-
-            if (!file_exists($this->_controllerFilename)) {
-                throw new FileNotExistsException($this->_controllerFilename);
-            }
-
-            // next steps of routing
-        } else {
+        if (!self::_isValidName($controllerFilename)) {
             throw new InvalidControllerFilenameException($controllerFilename);
         }
 
-        echo $this->_controllerFilename;
+        if (!self::_isValidName($actionName)) {
+            throw new InvalidActionNameException($actionName);
+        }
+
+        $this->_controllerFilename = ROOT . '/controllers/'
+            . str_replace('-', '_', $controllerFilename) . '_controller.php';
+
+        $this->_controllerName = self::_toCamelCase($controllerFilename) . 'Controller';
+        $this->_actionName = 'action' . self::_toCamelCase($actionName);
+        $this->_actionArgs = $segments;
     }
 
 
@@ -96,35 +97,47 @@ class Router
 
 
     /**
-     * Returns boolean value whether the $controllerFilename is correct or not
+     * Returns boolean value whether the $name is correct or not
      *
-     * Correct filename:
-     * - correct-controller-filename
+     * Correct name:
+     * - correct-awesome-name
      * - i-have-23-dollars
      * - we-need-some-cola
      * - reload-apache2-please
      *
      * Incorrect filename:
-     * - Incorrect-cOntroLler-filEname
-     * - -bad-filename-
-     * - 234-bad-filename
-     * - bad-filename-%*$#
+     * - Incorrect-nAme
+     * - -bad-name
+     * - bad-name-
+     * - 234-bad-name
+     * - bad-name-%*$#
+     * - bad--name
      *
      * Rules:
-     * - correct controller filename has to consist of one or more latin lowercase letters
-     * - it may consist of digits too, but first character of filename has to be a letter only
-     * - if controller name consists of several words, they can be divided the hyphen character ('-')
+     * - correct name has to consist of one or more latin lowercase letter
+     * - it may consist of digits too, but first character of name has to be a letter only
+     * - if name consists of several words, they can be divided the hyphen character ('-')
      * - hyphen character can't appear between letters and digits more than once, as well as
-     *   it can't begin and end the filename
+     *   it can't begin and end the name
      *
-     * @param $controllerFilename string
+     * @param $name string
      * @return bool
      */
-    private static function _isValidControllerFilename($controllerFilename)
+    private static function _isValidName($name)
     {
-        return preg_match('/[a-z\d-]+/', $controllerFilename) &&
-               !preg_match('/-{2,}/', $controllerFilename) &&
-               !preg_match('/[\d-]/', $controllerFilename[0]) &&
-               !preg_match('/-+/', $controllerFilename[strlen($controllerFilename) - 1]);
+        return preg_match('/^[a-z\d-]+$/', $name) &&    // consists of these characters
+               preg_match('/^[a-z]+/', $name) &&        // begins with letter
+               preg_match('/[a-z\d]+$/', $name) &&      // ends with letter or digit
+               !preg_match('/-{2,}/', $name);           // hyphen can't appear in a row more than twice
+    }
+
+
+    private static function _toCamelCase($stringWithHyphens)
+    {
+        return implode('',
+            array_map(function ($item) {
+                return ucfirst($item);
+            }, explode('-', $stringWithHyphens))
+        );
     }
 }

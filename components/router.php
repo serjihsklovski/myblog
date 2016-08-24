@@ -11,11 +11,16 @@ class Router
     private $_controllerName;
     private $_actionName;
     private $_actionArgs;
+    private $_routes;
 
 
-    public function __construct()
+    public function __construct(&$routes)
     {
+        $this->_routes = $routes;
         $this->_uri = self::_getUri();
+
+        $this->_searchRoute();
+
         $segments = explode('/', $this->_uri);
         $controllerFilename = array_shift($segments);
         $actionName = array_shift($segments);
@@ -139,5 +144,18 @@ class Router
                 return ucfirst($item);
             }, explode('-', $stringWithHyphens))
         );
+    }
+
+
+    private function _searchRoute()
+    {
+        foreach ($this->_routes as $uriPattern => $route) {
+            if (preg_match("~$uriPattern~", $this->_uri)) {
+                $this->_uri = preg_replace("~$uriPattern~", $route, $this->_uri);
+                return true;
+            }
+        }
+
+        return false;
     }
 }

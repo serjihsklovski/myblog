@@ -7,6 +7,6 @@ define('ROOT', dirname(__FILE__));
 
 require_once ROOT . '/components/application.php';
 
-$config = require __DIR__ . '/config/web.php';
+$config = require ROOT . '/config/web.php';
 
 (new Application($config))->run();

@@ -19,10 +19,10 @@ class Application
 
         try {
             $this->_router = new Router(self::$config['router']);
-        } catch (InvalidControllerFilenameException $e) {
-            $e->getMessage();
-        } catch (InvalidActionNameException $e) {
-            $e->getMessage();
+        } catch (FileNotExistsException $e) {
+            echo $e->getMessage(); die;
+        } catch (InvalidNameException $e) {
+            echo $e->getMessage(); die;
         }
 
         $this->_controller = $this->_router->getController();
@@ -33,7 +33,19 @@ class Application
 
     public function run()
     {
-        return $result = call_user_func_array(
+        if (!method_exists($this->_controller, $this->_action)) {
+            // 404
+            echo '404'; die;
+        }
+
+        if (count($this->_args) > (new ReflectionMethod(
+            $this->_controller, $this->_action))->getNumberOfParameters())
+        {
+            // 40x
+            echo '40x'; die;
+        }
+
+        return call_user_func_array(
             [
                 $this->_controller,
                 $this->_action

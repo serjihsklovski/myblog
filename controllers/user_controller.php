@@ -1,6 +1,9 @@
 <?php
 
-class UserController
+require_once ROOT . '/controllers/controller.php';
+
+
+class UserController extends Controller
 {
     public function actionProfile($username)
     {

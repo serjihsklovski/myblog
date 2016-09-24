@@ -1,6 +1,9 @@
 <?php
 
-class AdminController
+require_once ROOT . '/controllers/controller.php';
+
+
+class AdminController extends Controller
 {
     public function actionIndex()
     {

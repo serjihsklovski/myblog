@@ -1,44 +1,41 @@
 <?php
 
-require_once ROOT . '/components/exceptions/invalid_controller_filename_exception.php';
-require_once ROOT . '/components/exceptions/invalid_action_name_exception.php';
+require_once ROOT . '/components/exceptions/invalid_name_exception.php';
 
 
 class Router
 {
     private $_uri;
+    private $_controllerSubName;
     private $_controllerFilename;
     private $_controllerName;
+    private $_controller;
     private $_actionName;
     private $_actionArgs;
     private $_routes;
+    private $_segments;
 
 
     public function __construct(&$routes)
     {
         $this->_routes = $routes;
         $this->_uri = self::_getUri();
-
         $this->_searchRoute();
 
-        $segments = explode('/', $this->_uri);
-        $controllerFilename = array_shift($segments);
-        $actionName = array_shift($segments);
+        $this->_segments = $this->getSegments();
 
-        if (!self::_isValidName($controllerFilename)) {
-            throw new InvalidControllerFilenameException($controllerFilename);
-        }
+        $this->_initControllerSubName();
+        $this->_initControllerFilename();
+        $this->_initControllerName();
+        $this->_initController();
+        $this->_initActionName();
+        $this->_initArgs();
+    }
 
-        if (!self::_isValidName($actionName)) {
-            throw new InvalidActionNameException($actionName);
-        }
 
-        $this->_controllerFilename = ROOT . '/controllers/'
-            . str_replace('-', '_', $controllerFilename) . '_controller.php';
-
-        $this->_controllerName = self::_toCamelCase($controllerFilename) . 'Controller';
-        $this->_actionName = 'action' . self::_toCamelCase($actionName);
-        $this->_actionArgs = $segments;
+    public function getSegments()
+    {
+        return explode('/', $this->_uri);
     }
 
 
@@ -49,7 +46,7 @@ class Router
     {
         if (!empty($_SERVER['REQUEST_URI'])) {
 //            return ltrim($_SERVER['REQUEST_URI'], '/');
-            return trim(substr($_SERVER['REQUEST_URI'], strlen('/myblog/')));
+            return trim(substr($_SERVER['REQUEST_URI'], strlen('/myblog/')), '/');
         }
 
         return '';
@@ -80,6 +77,15 @@ class Router
     public function getControllerName()
     {
         return $this->_controllerName;
+    }
+
+
+    /**
+     * @return mixed
+     */
+    public function getController()
+    {
+        return $this->_controller;
     }
 
 
@@ -147,9 +153,23 @@ class Router
     }
 
 
+    /**
+     * If returns false, than there are not exception routes in $this->_uri,
+     * but if $this->_uri string is empty, than it becomes the default
+     * controller name.
+     *
+     * if returns true, than there was found an exception route.
+     *
+     * @return bool
+     */
     private function _searchRoute()
     {
-        foreach ($this->_routes as $uriPattern => $route) {
+        if ($this->_uri === '') {
+            $this->_uri = $this->_routes['defaultController'];
+            return false;
+        }
+
+        foreach ($this->_routes['exceptionRoutes'] as $uriPattern => $route) {
             if (preg_match("~$uriPattern~", $this->_uri)) {
                 $this->_uri = preg_replace("~$uriPattern~", $route, $this->_uri);
                 return true;
@@ -157,5 +177,70 @@ class Router
         }
 
         return false;
+    }
+
+
+    private function _initControllerSubName()
+    {
+        $this->_controllerSubName = array_shift($this->_segments);
+    }
+
+
+    private function _initControllerFilename()
+    {
+        $this->_controllerFilename = ROOT . '/controllers/'
+            . str_replace('-', '_', $this->_controllerSubName)
+            . '_controller.php';
+    }
+
+
+    private function _initControllerName()
+    {
+        if (!self::_isValidName($this->_controllerSubName)) {
+            throw new InvalidNameException(
+                $this->_controllerSubName,
+                'Controller filename does not match any rules.'
+            );
+        }
+
+        $this->_controllerName = self::_toCamelCase($this->_controllerSubName)
+            . 'Controller';
+    }
+
+
+    private function _initController()
+    {
+        if (!file_exists($this->_controllerFilename)) {
+            throw new FileNotExistsException($this->_controllerFilename);
+        }
+
+        include $this->_controllerFilename;
+
+        $this->_controller = new $this->_controllerName();
+    }
+
+
+    private function _initActionName()
+    {
+        if (!count($this->_segments)) {
+            $actionName = $this->_controller->getDefaultAction();
+        } else {
+            $actionName = array_shift($this->_segments);
+        }
+
+        if (!self::_isValidName($actionName)) {
+            throw new InvalidNameException(
+                $actionName,
+                'Action name does not match any rules.'
+            );
+        }
+
+        $this->_actionName = 'action' . self::_toCamelCase($actionName);
+    }
+
+
+    private function _initArgs()
+    {
+        $this->_actionArgs = $this->_segments;
     }
 }

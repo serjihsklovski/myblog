@@ -1,8 +1,13 @@
 <?php
 
 return [
-    'routes' => [
-        '^$' => 'main/index',
-        '^admin\/?$' => 'admin/index',
-    ]
+    'app' => [
+        'id' => 'myblog',
+        'name' => 'SerjihSklovskiBlog',
+    ],
+
+    'router' => [
+        'exceptionRoutes' => [],
+        'defaultController' => 'main',
+    ],
 ];

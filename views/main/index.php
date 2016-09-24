@@ -9,6 +9,8 @@
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 
+<body>
+
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
@@ -28,5 +30,7 @@
         </ul>
     </div>
 </nav>
+
+</body>
 
 </html>

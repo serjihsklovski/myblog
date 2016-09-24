@@ -1,6 +1,9 @@
 <?php
 
-class MainController
+require_once ROOT . '/controllers/controller.php';
+
+
+class MainController extends Controller
 {
     public function actionIndex()
     {

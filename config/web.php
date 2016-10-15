@@ -11,7 +11,7 @@ return [
         'defaultController' => 'main',
     ],
 
-    'database' = [
+    'database' => [
         'host' => '127.0.0.1',
         'name' => 'myblog',
         'user' => '',

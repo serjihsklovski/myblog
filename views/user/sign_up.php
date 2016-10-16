@@ -21,83 +21,22 @@
     </script>
 </head>
 
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#">SerjihBlog</a>
-        </div>
-        <ul class="nav navbar-nav">
-            <li class="active"><a href="/myblog/">Main</a></li>
-            <li><a href="#">Page 1</a></li>
-            <li><a href="#">Page 2</a></li>
-            <li><a href="#">Page 3</a></li>
-        </ul>
-    </div>
-</nav>
+<body>
+
+<?php require ROOT . '/templates/navbar.php' ?>
 
 <div class="container" style="margin-top:80px">
-    <div class="row">
-        <div class="col-sm-7 col-md-7 col-md-offset-3">
-            <div class="row">
-                <div class="col-lg-10 col-md-11 col-sm-2 col-xs-12">
-                    <div class="panel panel-default anim">
-                        <div class="panel-heading">
-                            <h3>Sign Up</h3>
-                        </div>
+    <div class="panel panel-default anim">
+        <div class="panel-heading">
+            <h3>Sign Up</h3>
+        </div>
 
-                        <div class="panel-body">
-                            <form method="post" action="/user/sign-up">
-                                <?php
-
-                                if (isset($errors)) {
-                                    echo '<b style="color: darkred">In the registration form the following errors have been found:</b><br>';
-                                    echo '<ul>';
-
-                                    foreach ($errors as $error) {
-                                        echo "<li>$error</li>";
-                                    }
-
-                                    echo'</ul>';
-                                }
-
-                                ?>
-                                <div class="form-group">
-                                    <label for="email">Email:</label>
-                                    <input type="email" class="form-control" name="email" maxlength="128" id="email" required="required">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="username">Username:</label>
-                                    <input type="text" class="form-control" name="username" maxlength="64" id="username" required="required">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="password">Password:</label>
-                                    <input type="password" class="form-control" name="password" maxlength="32" id="password" required="required">
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="confirm_password">Confirm password:</label>
-                                    <input type="password" class="form-control" name="confirm_password" maxlength="32" id="confirm_password" required="required">
-                                </div>
-
-                                <div class="form-group">
-                                    <div class="checkbox">
-                                        <label><input type="checkbox" value="true" name="remember_me">Remember me</label>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <input type="submit" class="btn btn-lg btn-primary btn-block" value="Sign Up">
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="panel-body">
+            <?php require ROOT . '/templates/sign_up_form.php' ?>
         </div>
     </div>
 </div>
 
+</body>
 
 </html>

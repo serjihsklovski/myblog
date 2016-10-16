@@ -57,8 +57,8 @@ class UserController extends Controller
                 $errors[] = 'Username can be 8-32 characters of length';
             } elseif (!preg_match(self::$_patterns['username'], $username)) {
                 $errors[] = 'Username is incorrect!';
-            } elseif (true /* todo User::usernameExists */) {
-                // username exists
+            } elseif ($this->_model->usernameExists($username)) {
+                $errors[] = 'This username is already in use';
             }
 
             // verify password
@@ -72,6 +72,7 @@ class UserController extends Controller
             }
 
             if (count($errors) == 0) {
+                $this->_model->addUser($email, $username, $password);
                 echo 'our congratulations! you are signed up!';
             } else {
                 require ROOT . '/views/user/sign_up.php';

@@ -45,8 +45,7 @@ class Router
     private static function _getUri()
     {
         if (!empty($_SERVER['REQUEST_URI'])) {
-//            return ltrim($_SERVER['REQUEST_URI'], '/');
-            return trim(substr($_SERVER['REQUEST_URI'], strlen('/myblog/')), '/');
+            return ltrim($_SERVER['REQUEST_URI'], '/');
         }
 
         return '';

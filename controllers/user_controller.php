@@ -33,24 +33,17 @@ class UserController extends Controller
     public function actionSignUp()
     {
         if (
-            isset($_REQUEST['email']) and $_REQUEST['email'] !== '' and
             isset($_REQUEST['username']) and $_REQUEST['username'] !== '' and
             isset($_REQUEST['password']) and $_REQUEST['password'] !== '' and
             isset($_REQUEST['confirm_password']) and
-            $_REQUEST['confirm_password'] !== ''
+            $_REQUEST['confirm_password'] !== '' and
+            isset($_REQUEST['answer']) and $_REQUEST['answer'] !== ''
         ) {
-            $email = $_REQUEST['email'];
             $username = $_REQUEST['username'];
             $password = $_REQUEST['password'];
             $confirmPassword = $_REQUEST['confirm_password'];
+            $answer = $_REQUEST['answer'];
             $errors = [];
-
-            // verify email address
-            if (!preg_match(self::$_patterns['email'], $email)) {
-                $errors[] = 'E-mail address is incorrect!';
-            } elseif ($this->_model->emailExists($email)) {
-                $errors[] = 'This e-mail address is already in use';
-            }
 
             // verify username
             if (strlen($username) < 8 or strlen($username) > 32) {
@@ -71,9 +64,27 @@ class UserController extends Controller
                 $errors[] = 'Passwords do not match!';
             }
 
+            // verify answer
+            if ($answer != 1988) {
+                $errors[] = 'You gave the wrong answer';
+            }
+
+            // verify email address
+            if (isset($_REQUEST['email']) and $_REQUEST['email'] !== '') {
+                $email = $_REQUEST['email'];
+
+                if (!preg_match(self::$_patterns['email'], $email)) {
+                    $errors[] = 'E-mail address is incorrect!';
+                } elseif ($this->_model->emailExists($email)) {
+                    $errors[] = 'This e-mail address is already in use';
+                }
+            } else {
+                $email = null;
+            }
+
             if (count($errors) == 0) {
-                $this->_model->addUser($email, $username, $password);
-                echo 'our congratulations! you are signed up!';
+                $this->_model->addUser($username, $password, $email);
+                require ROOT . '/views/user/sign_up_done.php';
             } else {
                 require ROOT . '/views/user/sign_up.php';
             }

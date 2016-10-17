@@ -24,9 +24,9 @@ class UserController extends Controller
     }
 
 
-    public function actionSignIn()
+    public function actionLogin()
     {
-        //
+        require ROOT . '/views/user/login.php';
     }
 
 
@@ -83,7 +83,42 @@ class UserController extends Controller
             }
 
             if (count($errors) == 0) {
-                $this->_model->addUser($username, $password, $email);
+                $crypt_password = md5(
+                    Application::$config['app']['passwordLeftSalt'] .
+                    $password .
+                    Application::$config['app']['passwordRightSalt']
+                );
+
+                $this->_model->addUser($username, $crypt_password, $email);
+
+                if (isset($_REQUEST['remember_me']) and
+                    $_REQUEST['remember_me'] == 'true')
+                {
+                    setcookie(
+                        'username',
+                        Application::encryptCookie($username),
+                        time() + 60 * 60 * 24 + 30 * 12,
+                        '/'
+                    );
+
+                    setcookie(
+                        'password',
+                        Application::encryptCookie($password),
+                        time() + 60 * 60 * 24 + 30 * 12,
+                        '/'
+                    );
+                } else {
+                    setcookie(
+                        'username',
+                        Application::encryptCookie($username)
+                    );
+
+                    setcookie(
+                        'password',
+                        Application::encryptCookie($password)
+                    );
+                }
+
                 require ROOT . '/views/user/sign_up_done.php';
             } else {
                 require ROOT . '/views/user/sign_up.php';

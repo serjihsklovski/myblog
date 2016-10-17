@@ -13,6 +13,49 @@ class Application
     private $_args;
 
 
+    public static function encryptCookie($value)
+    {
+        if (!$value) {
+            return false;
+        }
+
+        $ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
+        $iv = mcrypt_create_iv($ivSize, MCRYPT_RAND);
+
+        $cryptText = mcrypt_encrypt(
+            MCRYPT_RIJNDAEL_256,
+            md5(self::$config['app']['cookieKey']),
+            $value,
+            MCRYPT_MODE_ECB,
+            $iv
+        );
+
+        return trim(base64_encode($cryptText));
+    }
+
+
+    public static function decryptCookie($value)
+    {
+        if (!$value) {
+            return false;
+        }
+
+        $cryptText = base64_decode($value);
+        $ivSize = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
+        $iv = mcrypt_create_iv($ivSize, MCRYPT_RAND);
+
+        $decryptText = mcrypt_decrypt(
+            MCRYPT_RIJNDAEL_256,
+            md5(self::$config['app']['cookieKey']),
+            $cryptText,
+            MCRYPT_MODE_ECB,
+            $iv
+        );
+
+        return trim($decryptText);
+    }
+
+
     public function __construct(&$config)
     {
         self::$config = $config;

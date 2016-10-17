@@ -25,8 +25,8 @@
 
 <?php require ROOT . '/templates/navbar.php' ?>
 
-<div class="container" style="margin-top:80px">
-    <div class="panel panel-default anim">
+<div class="container">
+    <div style="margin-right: 20%; margin-left: 20%" class="panel panel-default anim">
         <div class="panel-heading">
             <h3>Sign Up</h3>
         </div>

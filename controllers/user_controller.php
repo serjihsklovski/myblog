@@ -26,12 +26,77 @@ class UserController extends Controller
 
     public function actionLogin()
     {
-        require ROOT . '/views/user/login.php';
+        if (
+            Application::getSiteCookie('username') !== null and
+            Application::getSiteCookie('password') !== null
+        ) {
+            $loggedIn = true;
+        }
+
+        if (
+            isset($_REQUEST['username']) and $_REQUEST['username'] !== '' and
+            isset($_REQUEST['password']) and $_REQUEST['password'] !== ''
+        ) {
+            $username = $_REQUEST['username'];
+            $password = $_REQUEST['password'];
+            $errors = [];
+
+            $cryptPassword = Application::passwordHashCode($password);
+
+            if ($this->_model->hasLoggedIn($username, $cryptPassword)) {
+                if (
+                    isset($_REQUEST['remember_me']) and
+                    $_REQUEST['remember_me'] == 'true'
+                ) {
+                    Application::eatCookie('username');
+                    Application::eatCookie('password');
+
+                    Application::setSiteCookie(
+                        'username', $username, Application::COOKIE_EXPIRE_YEAR
+                    );
+
+                    Application::setSiteCookie(
+                        'password', $password, Application::COOKIE_EXPIRE_YEAR
+                    );
+                } else {
+                    Application::eatCookie('username');
+                    Application::eatCookie('password');
+                    Application::setSiteCookie('username', $username);
+                    Application::setSiteCookie('password', $password);
+                }
+            } else {
+                $errors[] = 'Incorrect combination of username and password';
+            }
+
+            if (count($errors) == 0) {
+                require ROOT . '/views/user/login_done.php';
+            } else {
+                require ROOT . '/views/user/login.php';
+            }
+        } else {
+            require ROOT . '/views/user/login.php';
+        }
+    }
+
+
+    public function actionLogout()
+    {
+        Application::eatCookie('username');
+        Application::eatCookie('password');
+
+        require ROOT . '/views/user/logout.php';
     }
 
 
     public function actionSignUp()
     {
+        if (
+            Application::getSiteCookie('username') !== null and
+            Application::getSiteCookie('password') !== null
+        ) {
+            $loggedIn = true;
+        }
+
         if (
             isset($_REQUEST['username']) and $_REQUEST['username'] !== '' and
             isset($_REQUEST['password']) and $_REQUEST['password'] !== '' and
@@ -83,40 +148,28 @@ class UserController extends Controller
             }
 
             if (count($errors) == 0) {
-                $crypt_password = md5(
-                    Application::$config['app']['passwordLeftSalt'] .
-                    $password .
-                    Application::$config['app']['passwordRightSalt']
-                );
+                $cryptPassword = Application::passwordHashCode($password);
 
-                $this->_model->addUser($username, $crypt_password, $email);
+                $this->_model->addUser($username, $cryptPassword, $email);
 
                 if (isset($_REQUEST['remember_me']) and
                     $_REQUEST['remember_me'] == 'true')
                 {
-                    setcookie(
-                        'username',
-                        Application::encryptCookie($username),
-                        time() + 60 * 60 * 24 + 30 * 12,
-                        '/'
+                    Application::eatCookie('username');
+                    Application::eatCookie('password');
+
+                    Application::setSiteCookie(
+                        'username', $username, Application::COOKIE_EXPIRE_YEAR
                     );
 
-                    setcookie(
-                        'password',
-                        Application::encryptCookie($password),
-                        time() + 60 * 60 * 24 + 30 * 12,
-                        '/'
+                    Application::setSiteCookie(
+                        'password', $password, Application::COOKIE_EXPIRE_YEAR
                     );
                 } else {
-                    setcookie(
-                        'username',
-                        Application::encryptCookie($username)
-                    );
-
-                    setcookie(
-                        'password',
-                        Application::encryptCookie($password)
-                    );
+                    Application::eatCookie('username');
+                    Application::eatCookie('password');
+                    Application::setSiteCookie('username', $username);
+                    Application::setSiteCookie('password', $password);
                 }
 
                 require ROOT . '/views/user/sign_up_done.php';

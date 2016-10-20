@@ -5,6 +5,9 @@ require_once ROOT . '/components/exceptions/file_not_exists_exception.php';
 
 class Application
 {
+    const COOKIE_EXPIRE_SESSION = null;
+    const COOKIE_EXPIRE_YEAR = 60 * 60 * 24 * 365;
+
     public static $config;
 
     private $_router;
@@ -53,6 +56,36 @@ class Application
         );
 
         return trim($decryptText);
+    }
+
+
+    public static function setSiteCookie(
+        string $name,
+        string $value,
+        $expire = self::COOKIE_EXPIRE_SESSION
+    ) {
+        setcookie(
+            $name,
+            self::encryptCookie($value),
+            $expire,
+            '/'
+        );
+    }
+
+
+    public static function getSiteCookie(string $name)
+    {
+        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
+    }
+
+
+    public static function passwordHashCode(string $password) : string
+    {
+        return md5(
+            self::$config['app']['passwordLeftSalt'] .
+            $password .
+            self::$config['app']['passwordRightSalt']
+        );
     }
 
 

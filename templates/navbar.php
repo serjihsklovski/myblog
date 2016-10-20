@@ -13,7 +13,12 @@
 
         <ul class="nav navbar-nav navbar-right">
             <li><a href="/user/sign-up"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-            <li><a href="/user/login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+            <li>
+                <a href="<?= isset($loggedIn) ? '/user/logout' : '/user/login' ?>">
+                    <span class="glyphicon <?= isset($loggedIn) ? 'glyphicon-log-out' : 'glyphicon-log-in' ?>"></span>
+                    <?= isset($loggedIn) ? 'Logout' : 'Login' ?>
+                </a>
+            </li>
         </ul>
     </div>
 </nav>

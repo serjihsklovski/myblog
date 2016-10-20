@@ -56,4 +56,20 @@ class User extends Model
             'email' => $email
         ]);
     }
+
+
+    public function hasLoggedIn($username, $password)
+    {
+        $query = 'SELECT COUNT(*) AS `count` FROM `user` WHERE `username` = :username AND `password` = :password';
+        $statement = $this->_conn->prepare($query, [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY]);
+
+        $statement->execute([
+            'username' => $username,
+            'password' => $password
+        ]);
+
+        $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return $result[0]['count'] != 0;
+    }
 }

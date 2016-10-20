@@ -69,6 +69,8 @@ class UserController extends Controller
             }
 
             if (count($errors) == 0) {
+                $loggedIn = true;
+
                 require ROOT . '/views/user/login_done.php';
             } else {
                 require ROOT . '/views/user/login.php';

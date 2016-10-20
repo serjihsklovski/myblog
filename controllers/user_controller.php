@@ -44,13 +44,13 @@ class UserController extends Controller
             $cryptPassword = Application::passwordHashCode($password);
 
             if ($this->_model->hasLoggedIn($username, $cryptPassword)) {
+                Application::eatCookie('username');
+                Application::eatCookie('password');
+
                 if (
                     isset($_REQUEST['remember_me']) and
                     $_REQUEST['remember_me'] == 'true'
                 ) {
-                    Application::eatCookie('username');
-                    Application::eatCookie('password');
-
                     Application::setSiteCookie(
                         'username', $username, Application::COOKIE_EXPIRE_YEAR
                     );
@@ -59,8 +59,6 @@ class UserController extends Controller
                         'password', $password, Application::COOKIE_EXPIRE_YEAR
                     );
                 } else {
-                    Application::eatCookie('username');
-                    Application::eatCookie('password');
                     Application::setSiteCookie('username', $username);
                     Application::setSiteCookie('password', $password);
                 }
@@ -154,12 +152,12 @@ class UserController extends Controller
 
                 $this->_model->addUser($username, $cryptPassword, $email);
 
+                Application::eatCookie('username');
+                Application::eatCookie('password');
+
                 if (isset($_REQUEST['remember_me']) and
                     $_REQUEST['remember_me'] == 'true')
                 {
-                    Application::eatCookie('username');
-                    Application::eatCookie('password');
-
                     Application::setSiteCookie(
                         'username', $username, Application::COOKIE_EXPIRE_YEAR
                     );
@@ -168,11 +166,11 @@ class UserController extends Controller
                         'password', $password, Application::COOKIE_EXPIRE_YEAR
                     );
                 } else {
-                    Application::eatCookie('username');
-                    Application::eatCookie('password');
                     Application::setSiteCookie('username', $username);
                     Application::setSiteCookie('password', $password);
                 }
+
+                $loggedIn = true;
 
                 require ROOT . '/views/user/sign_up_done.php';
             } else {
